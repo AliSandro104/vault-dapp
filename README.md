@@ -41,6 +41,6 @@ npx hardhat test
 npm create vite@latest frontend -- --template react
 cd frontend
 npm install
-npm install tailwindcss @tailwindcss/vite
+npm install bootstrap
 npm install ethers
 ```
