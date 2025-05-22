@@ -42,4 +42,5 @@ npm create vite@latest frontend -- --template react
 cd frontend
 npm install
 npm install tailwindcss @tailwindcss/vite
+npm install ethers
 ```

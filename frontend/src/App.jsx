@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { getVaultContract } from "./contract";
+import { ethers } from "ethers";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [account, setAccount] = useState(null);
+    const [amount, setAmount] = useState("0.001");
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    async function connectWallet() {
+        const [addr] = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setAccount(addr);
+    }
+
+    async function deposit() {
+        const contract = await getVaultContract();
+        const unlockTime = Math.floor(Date.now() / 1000) + 60; // 60 seconds from now
+        const tx = await contract.deposit(unlockTime, {
+            value: ethers.parseEther(amount)
+        });
+        await tx.wait();
+        alert("Deposit successful!");
+    }
+
+    return (
+        <div className="min-h-screen p-4 bg-gray-100">
+            {!account ? (
+                <button onClick={connectWallet} className="px-4 py-2 bg-blue-500 text-white rounded">
+                    Connect Wallet
+                </button>
+            ) : (
+                <div>
+                    <div className="mb-4">
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="p-2 border rounded mr-2"
+                        />
+                        <button onClick={deposit} className="px-4 py-2 bg-green-500 text-white rounded">
+                            Deposit
+                        </button>
+                    </div>
+                    <p>Connected: {account}</p>
+                </div>
+            )}
+        </div>
+    );
 }
 
-export default App
+export default App;
